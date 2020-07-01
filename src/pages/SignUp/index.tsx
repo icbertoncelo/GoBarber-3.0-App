@@ -28,6 +28,8 @@ import logoImg from '../../assets/logo.png';
 const SignUp: React.FC = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormHandles>(null);
+  const passwordInputRef = useRef<TextInput>(null);
+  const emailInputRef = useRef<TextInput>(null);
 
   const handleSubmit = useCallback(data => {
     console.log(data);
@@ -59,19 +61,31 @@ const SignUp: React.FC = () => {
                 name="name"
                 icon="user"
                 placeholder="Nome"
+                autoCorrect={false}
                 autoCapitalize="words"
+                returnKeyType="next"
+                onSubmitEditing={() => emailInputRef.current?.focus()}
               />
               <Input
+                ref={emailInputRef}
                 name="email"
                 icon="mail"
                 placeholder="E-mail"
+                autoCorrect={false}
+                autoCapitalize="none"
                 keyboardType="email-address"
+                returnKeyType="next"
+                onSubmitEditing={() => passwordInputRef.current?.focus()}
               />
               <Input
+                ref={passwordInputRef}
                 name="password"
                 icon="lock"
                 placeholder="Senha"
                 secureTextEntry
+                returnKeyType="send"
+                textContentType="newPassword"
+                onSubmitEditing={() => formRef.current?.submitForm()}
               />
               <Button onPress={() => formRef.current?.submitForm()}>
                 Entrar
