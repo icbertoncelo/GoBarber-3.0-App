@@ -19,6 +19,8 @@ import { ValidationError } from 'yup';
 import { signUpSchema } from '../../utils/validations';
 import getValidationErrors from '../../utils/getValidationErrors';
 
+import api from '../../services/api';
+
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 
@@ -43,30 +45,37 @@ const SignUp: React.FC = () => {
   const passwordInputRef = useRef<TextInput>(null);
   const emailInputRef = useRef<TextInput>(null);
 
-  const handleSignUp = useCallback(async (data: SignUpFormData) => {
-    try {
-      formRef.current?.setErrors({});
+  const handleSignUp = useCallback(
+    async (data: SignUpFormData) => {
+      try {
+        formRef.current?.setErrors({});
 
-      await signUpSchema.validate(data, {
-        abortEarly: false,
-      });
+        await signUpSchema.validate(data, {
+          abortEarly: false,
+        });
 
-      // await signIn({
-      //   email: data.email,
-      //   password: data.password,
-      // });
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        const validationErrors = getValidationErrors(error);
-        formRef.current?.setErrors(validationErrors);
+        await api.post('users', data);
+
+        Alert.alert(
+          'Cadastro realizado com sucesso',
+          'Você ja pode fazer login na aplicação',
+        );
+
+        navigation.goBack();
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          const validationErrors = getValidationErrors(error);
+          formRef.current?.setErrors(validationErrors);
+        }
+
+        Alert.alert(
+          'Erro de cadastro',
+          'Ocorreu um erro ao fazer o cadastro. Por favor, verifique as credenciais',
+        );
       }
-
-      Alert.alert(
-        'Erro de cadastro',
-        'Ocorreu um erro ao fazer o cadastro. Por favor, verifique as credenciais',
-      );
-    }
-  }, []);
+    },
+    [navigation],
+  );
 
   return (
     <>
