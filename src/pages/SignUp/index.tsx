@@ -10,16 +10,15 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
-import { useNavigation } from '@react-navigation/native';
-
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 
 import { ValidationError } from 'yup';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../contexts/auth';
+
 import { signUpSchema } from '../../utils/validations';
 import getValidationErrors from '../../utils/getValidationErrors';
-
-import api from '../../services/api';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -40,7 +39,9 @@ interface SignUpFormData {
 }
 
 const SignUp: React.FC = () => {
+  const { signUp } = useAuth();
   const navigation = useNavigation();
+
   const formRef = useRef<FormHandles>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const emailInputRef = useRef<TextInput>(null);
@@ -54,7 +55,9 @@ const SignUp: React.FC = () => {
           abortEarly: false,
         });
 
-        await api.post('users', data);
+        const { name, email, password } = data;
+
+        await signUp({ name, email, password });
 
         Alert.alert(
           'Cadastro realizado com sucesso',
@@ -74,7 +77,7 @@ const SignUp: React.FC = () => {
         );
       }
     },
-    [navigation],
+    [signUp, navigation],
   );
 
   return (

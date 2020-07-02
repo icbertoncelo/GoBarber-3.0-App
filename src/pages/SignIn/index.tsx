@@ -16,6 +16,7 @@ import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 
 import { ValidationError } from 'yup';
+import { useAuth } from '../../contexts/auth';
 import { signInSchema } from '../../utils/validations';
 import getValidationErrors from '../../utils/getValidationErrors';
 
@@ -40,33 +41,37 @@ interface SignInFormData {
 
 const SignIn: React.FC = () => {
   const navigation = useNavigation();
+  const { signIn } = useAuth();
+
   const formRef = useRef<FormHandles>(null);
   const passwordInputRef = useRef<TextInput>(null);
 
-  const handleSignIn = useCallback(async (data: SignInFormData) => {
-    try {
-      formRef.current?.setErrors({});
+  const handleSignIn = useCallback(
+    async (data: SignInFormData) => {
+      try {
+        formRef.current?.setErrors({});
 
-      await signInSchema.validate(data, {
-        abortEarly: false,
-      });
+        await signInSchema.validate(data, {
+          abortEarly: false,
+        });
 
-      // await signIn({
-      //   email: data.email,
-      //   password: data.password,
-      // });
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        const validationErrors = getValidationErrors(error);
-        formRef.current?.setErrors(validationErrors);
+        const { email, password } = data;
+
+        await signIn({ email, password });
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          const validationErrors = getValidationErrors(error);
+          formRef.current?.setErrors(validationErrors);
+        }
+
+        Alert.alert(
+          'Erro de autenticação',
+          'Ocorreu um erro ao fazer o login. Por favor, verifique as credenciais',
+        );
       }
-
-      Alert.alert(
-        'Erro de autenticação',
-        'Ocorreu um erro ao fazer o login. Por favor, verifique as credenciais',
-      );
-    }
-  }, []);
+    },
+    [signIn],
+  );
 
   return (
     <>
