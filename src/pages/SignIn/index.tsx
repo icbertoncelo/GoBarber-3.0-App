@@ -6,6 +6,7 @@ import {
   Platform,
   View,
   TextInput,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -13,6 +14,10 @@ import { useNavigation } from '@react-navigation/native';
 
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
+
+import { ValidationError } from 'yup';
+import { signInSchema } from '../../utils/validations';
+import getValidationErrors from '../../utils/getValidationErrors';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -28,13 +33,39 @@ import {
 
 import logoImg from '../../assets/logo.png';
 
+interface SignInFormData {
+  email: string;
+  password: string;
+}
+
 const SignIn: React.FC = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormHandles>(null);
   const passwordInputRef = useRef<TextInput>(null);
 
-  const handleSubmit = useCallback(data => {
-    console.log(data);
+  const handleSignIn = useCallback(async (data: SignInFormData) => {
+    try {
+      formRef.current?.setErrors({});
+
+      await signInSchema.validate(data, {
+        abortEarly: false,
+      });
+
+      // await signIn({
+      //   email: data.email,
+      //   password: data.password,
+      // });
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        const validationErrors = getValidationErrors(error);
+        formRef.current?.setErrors(validationErrors);
+      }
+
+      Alert.alert(
+        'Erro de autenticação',
+        'Ocorreu um erro ao fazer o login. Por favor, verifique as credenciais',
+      );
+    }
   }, []);
 
   return (
@@ -58,7 +89,7 @@ const SignIn: React.FC = () => {
             <Form
               style={{ width: '100%' }}
               ref={formRef}
-              onSubmit={handleSubmit}
+              onSubmit={handleSignIn}
             >
               <Input
                 name="email"

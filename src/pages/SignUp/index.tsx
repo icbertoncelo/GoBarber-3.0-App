@@ -5,6 +5,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   View,
+  TextInput,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -12,6 +14,10 @@ import { useNavigation } from '@react-navigation/native';
 
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
+
+import { ValidationError } from 'yup';
+import { signUpSchema } from '../../utils/validations';
+import getValidationErrors from '../../utils/getValidationErrors';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -25,14 +31,41 @@ import {
 
 import logoImg from '../../assets/logo.png';
 
+interface SignUpFormData {
+  name: string;
+  email: string;
+  password: string;
+}
+
 const SignUp: React.FC = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormHandles>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const emailInputRef = useRef<TextInput>(null);
 
-  const handleSubmit = useCallback(data => {
-    console.log(data);
+  const handleSignUp = useCallback(async (data: SignUpFormData) => {
+    try {
+      formRef.current?.setErrors({});
+
+      await signUpSchema.validate(data, {
+        abortEarly: false,
+      });
+
+      // await signIn({
+      //   email: data.email,
+      //   password: data.password,
+      // });
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        const validationErrors = getValidationErrors(error);
+        formRef.current?.setErrors(validationErrors);
+      }
+
+      Alert.alert(
+        'Erro de cadastro',
+        'Ocorreu um erro ao fazer o cadastro. Por favor, verifique as credenciais',
+      );
+    }
   }, []);
 
   return (
@@ -55,7 +88,7 @@ const SignUp: React.FC = () => {
             <Form
               style={{ width: '100%' }}
               ref={formRef}
-              onSubmit={handleSubmit}
+              onSubmit={handleSignUp}
             >
               <Input
                 name="name"
