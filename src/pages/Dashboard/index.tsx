@@ -27,8 +27,8 @@ import {
 import { IProvider } from './types';
 
 const Dashboard: React.FC = () => {
-  const navigation = useNavigation();
-  const { user, signOut } = useAuth();
+  const { navigate } = useNavigation();
+  const { user } = useAuth();
 
   const [providers, setProviders] = useState<IProvider[]>([]);
 
@@ -44,9 +44,9 @@ const Dashboard: React.FC = () => {
 
   const handleNavigateToCreateAppointment = useCallback(
     (providerId: string) => {
-      navigation.navigate('CreateAppointment', { providerId });
+      navigate('CreateAppointment', { providerId });
     },
-    [navigation],
+    [navigate],
   );
 
   return (
@@ -57,7 +57,7 @@ const Dashboard: React.FC = () => {
           <UserName>{user.name}</UserName>
         </View>
 
-        <ProfileButton onPress={() => signOut()}>
+        <ProfileButton onPress={() => navigate('Profile')}>
           <UserAvatar source={{ uri: user.avatar_url }} />
         </ProfileButton>
       </Header>
