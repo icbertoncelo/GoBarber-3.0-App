@@ -3,8 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import Dashboard from '../pages/Dashboard';
 import CreateAppointment from '../pages/CreateAppointment';
-import AppointmentCreated from '../pages/Profile';
-import Profile from '../pages/AppointmentCreated';
+import AppointmentCreated from '../pages/AppointmentCreated';
+import Profile from '../pages/Profile';
 
 const App = createStackNavigator();
 
